@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.io.Serializable;
@@ -60,11 +61,14 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
                 mCascadeData = (CascadeData) s;
             }
             mLevel = bundle.getInt(BUNDLE_KEY_LEVEL);
-            Serializable sel = bundle.getSerializable(BUNDLE_KEY_SELECTED_DATA);
-            mSelectedData = mCascadeData.calDepth((CascadeData)sel);
             if (mLevel > MAX_LEVEL) mLevel = MAX_LEVEL;
-            if(mSelectedData.size()>mLevel){
-                mSelectedData = mSelectedData.subList(0,mLevel);
+            Serializable sel = bundle.getSerializable(BUNDLE_KEY_SELECTED_DATA);
+            if(sel!=null){
+                mSelectedData = mCascadeData.calDepth((CascadeData)sel);
+                if(mSelectedData.size()>mLevel) {
+                    mSelectedData = mSelectedData.subList(0,mLevel);
+                }
+                bundle.remove(BUNDLE_KEY_SELECTED_DATA);
             }
         }
 
@@ -130,11 +134,12 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         if(level < mSelectedData.size()){
             mSelectedData.set(level,position);
             for(int i = level+1;i<mSelectedData.size();i++){
-                mSelectedData.set(i,-1);
+                mSelectedData.remove(i);
             }
         }else{
             mSelectedData.add(position);
         }
+
 
         refreshFragment();
         mViewPager.setCurrentItem(nextLevel, true);
@@ -144,10 +149,14 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.ok){
-            result = mCascadeData.calResult(mSelectedData);
-            if (mSelectedListener != null) mSelectedListener.onSelect(result);
+            if(mSelectedData.size() < mLevel){
+                Toast.makeText(getContext(),"请填写完整~",Toast.LENGTH_SHORT).show();
+            }else{
+                result = mCascadeData.calResult(mSelectedData);
+                if (mSelectedListener != null) mSelectedListener.onSelect(result);
+                dismiss();
+            }
         }
-        dismiss();
     }
 
     @Override
@@ -159,6 +168,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
     public void setSelectedListener(CascadeSelectListener listener) {
         this.mSelectedListener = listener;
     }
+
 
     private void init() {
         if (mSelectedData.isEmpty()) {
@@ -187,6 +197,15 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         }
         if (mTabs != null) {
             mTabs.notifyDataSetChanged();
+        }
+        refreshBtnStyle();
+    }
+
+    private void refreshBtnStyle(){
+        if(mSelectedData.size() == mLevel){
+            mOkBtn.setTextColor(getContext().getResources().getColor(R.color.blue));
+        }else{
+            mOkBtn.setTextColor(getContext().getResources().getColor(R.color.gray));
         }
     }
 
