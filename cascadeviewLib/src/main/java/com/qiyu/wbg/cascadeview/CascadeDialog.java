@@ -9,11 +9,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,12 +24,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qiyu.wbg.cascadeview.Constants.BUNDLE_KEY_CASCADE_DATA;
+import static com.qiyu.wbg.cascadeview.Constants.BUNDLE_KEY_LEVEL;
+import static com.qiyu.wbg.cascadeview.Constants.BUNDLE_KEY_SELECTED_DATA;
+import static com.qiyu.wbg.cascadeview.Constants.DEFAULT_HIGHT;
+import static com.qiyu.wbg.cascadeview.Constants.MAX_LEVEL;
+
 /**
  * Created by chenlong on 12/9/16.
  */
 public class CascadeDialog extends DialogFragment implements CascadeCallback,View.OnClickListener{
     private static final String TAG = CascadeDialog.class.getSimpleName();
-    private static final int MAX_LEVEL = 3;
     private ContentFragmentAdapter mFragmentPagerAdapter;
     private CascadeData mCascadeData;
     private List<Integer> mSelectedData = new ArrayList<>();
@@ -52,10 +54,18 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         if (bundle != null) {
-            Serializable s = bundle.getSerializable(Constants.BUNDLE_KEY_CASCADE_DATA);
-            if (s instanceof CascadeData) mCascadeData = (CascadeData) s;
-            mLevel = bundle.getInt(Constants.BUNDLE_KEY_LEVEL);
+            Serializable s = bundle.getSerializable(BUNDLE_KEY_CASCADE_DATA);
+            if (s instanceof CascadeData) {
+                mCascadeData = (CascadeData) s;
+                mCascadeData.calDepth();
+            }
+            mLevel = bundle.getInt(BUNDLE_KEY_LEVEL);
+            Serializable sel = bundle.getSerializable(BUNDLE_KEY_SELECTED_DATA);
+            mSelectedData = (ArrayList<Integer>)sel;
             if (mLevel > MAX_LEVEL) mLevel = MAX_LEVEL;
+            if(mSelectedData.size()>mLevel){
+                mSelectedData = mSelectedData.subList(0,mLevel);
+            }
         }
 
     }
@@ -68,7 +78,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         params.windowAnimations = R.style.DialogAnimation;
         params.gravity = Gravity.BOTTOM;
         params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = Util.dp2px(getContext(), 300);
+        params.height = Util.dp2px(getContext(),DEFAULT_HIGHT);
         window.setAttributes(params);
         window.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
     }
@@ -119,6 +129,9 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         //记录选择结果
         if(level < mSelectedData.size()){
             mSelectedData.set(level,position);
+            for(int i = level+1;i<mSelectedData.size();i++){
+                mSelectedData.set(i,-1);
+            }
         }else{
             mSelectedData.add(position);
         }
@@ -146,12 +159,6 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         this.mSelectedListener = listener;
     }
 
-    public void setSelectedData(List<Integer> data) {
-        if (data != null) {
-            this.mSelectedData = data;
-        }
-    }
-
     private void init() {
         if (mSelectedData.isEmpty()) {
             if (mCascadeData != null && mCascadeData.children != null) {
@@ -167,7 +174,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
 
     private void initWithData() {
         if (mSelectedData == null || mCascadeData == null || !states.isEmpty()) return;
-        for (int i = 0; i < mSelectedData.size(); i++) {
+        for (int i = 0; i < Math.min(mSelectedData.size(),mLevel); i++) {
             FragmentState state = mCascadeData.getCascadeData(i, mSelectedData, mSelectedData.get(i));
             states.add(state);
         }
@@ -271,14 +278,25 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
 
     static public class CascadeDialogBuilder {
         private CascadeDialog dialog;
-        private Bundle bundle;
+        private Bundle bundle = new Bundle();
 
         public CascadeDialogBuilder() {
             dialog = new CascadeDialog();
         }
 
-        public void setLevel(int level) {
-            bundle.putInt(Constants.BUNDLE_KEY_LEVEL, level);
+        public CascadeDialogBuilder setLevel(int level) {
+            bundle.putInt(BUNDLE_KEY_LEVEL, level);
+            return this;
+        }
+
+        public CascadeDialogBuilder setSelectData(List<Integer> selectData){
+            bundle.putSerializable(BUNDLE_KEY_SELECTED_DATA,(Serializable) selectData);
+            return this;
+        }
+
+        public CascadeDialogBuilder setDataSource(CascadeData cascadeData){
+            bundle.putSerializable(BUNDLE_KEY_CASCADE_DATA,cascadeData);
+            return this;
         }
 
         public CascadeDialog build() {

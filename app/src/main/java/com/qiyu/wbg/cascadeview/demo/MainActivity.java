@@ -38,16 +38,22 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        final CascadeDialog dialog = new CascadeDialog();
+        final CascadeDialog dialog;
         Bundle bundle = new Bundle();
         bundle.putSerializable("cascade_data",(Serializable) cascadeData);
-        bundle.putInt("level",3);
-        dialog.setArguments(bundle);
+        bundle.putInt("level",2);
+
         final List<Integer> list = new ArrayList<>();
         list.add(1);
         list.add(1);
         list.add(0);
-        dialog.setSelectedData(list);
+        bundle.putSerializable("selected_data",(Serializable) list);
+
+        dialog = new CascadeDialog.CascadeDialogBuilder()
+                .setDataSource(cascadeData)
+                .setLevel(2)
+                .setSelectData(list).build();
+
         dialog.setSelectedListener(new CascadeSelectListener() {
             @Override
             public void onSelect(List<Integer> res) {

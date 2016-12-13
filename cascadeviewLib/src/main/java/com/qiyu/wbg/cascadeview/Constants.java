@@ -5,6 +5,8 @@ package com.qiyu.wbg.cascadeview;
  */
 
 class Constants {
+    static final int MAX_LEVEL = 3;
+    static final int DEFAULT_HIGHT = 300;
     static final String BUNDLE_KEY_CASCADE_DATA = "cascade_data";
     static final String BUNDLE_KEY_LEVEL        = "level";
     static final String BUNDLE_KEY_DATA         = "data";
