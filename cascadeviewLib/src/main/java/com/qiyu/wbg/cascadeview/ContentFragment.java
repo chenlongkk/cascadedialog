@@ -101,7 +101,8 @@ public class ContentFragment extends Fragment implements AdapterView.OnItemClick
                 contentView = (TextView)view;
             }
             int padding = Util.dp2px(getContext(),20);
-            contentView.setPadding(padding,padding,padding,padding);
+            int paddingV = Util.dp2px(getContext(),14);
+            contentView.setPadding(padding,paddingV,padding,paddingV);
             contentView.setTextSize(TypedValue.COMPLEX_UNIT_SP,12);
             contentView.setTextColor(Color.parseColor("#333333"));
             contentView.setText(mDataSource.get(i).name);

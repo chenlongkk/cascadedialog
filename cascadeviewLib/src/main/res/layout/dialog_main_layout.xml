@@ -8,8 +8,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
+        android:paddingBottom="14dp"
+        android:paddingTop="14dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         >
@@ -20,6 +20,7 @@
             android:textColor="@color/blue"
             android:text="@string/cancel"
             android:textSize="16sp"
+            android:textStyle="bold"
             android:layout_alignParentLeft="true"
             />
         <TextView
@@ -29,6 +30,7 @@
             android:textColor="@color/blue"
             android:text="@string/ok"
             android:textSize="16sp"
+            android:textStyle="bold"
             android:layout_alignParentRight="true"
             />
     </RelativeLayout>
@@ -45,7 +47,8 @@
         app:pstsTabPaddingLeftRight="18dp"
         android:textSize="12sp"
         android:textColor="#333333"
-        android:layout_height="48dip" />
+        android:layout_height="40dip"
+        />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
