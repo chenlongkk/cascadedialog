@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,8 +52,8 @@ public class ContentFragment extends Fragment implements AdapterView.OnItemClick
         selectedPos = position;
         CascadeData selectData = mDataSource.get(position);
         if(mCallback!=null){
-            mTitle = selectData.content;
-            mCallback.onChoose(mLevel,position,selectData.content,selectData.children);
+            mTitle = selectData.name;
+            mCallback.onChoose(mLevel,position,selectData.name,selectData.children);
         }
         mContentAdapter.notifyDataSetChanged();
     }
@@ -106,7 +104,7 @@ public class ContentFragment extends Fragment implements AdapterView.OnItemClick
             contentView.setPadding(padding,padding,padding,padding);
             contentView.setTextSize(TypedValue.COMPLEX_UNIT_SP,12);
             contentView.setTextColor(Color.parseColor("#333333"));
-            contentView.setText(mDataSource.get(i).content);
+            contentView.setText(mDataSource.get(i).name);
             return contentView;
         }
     }

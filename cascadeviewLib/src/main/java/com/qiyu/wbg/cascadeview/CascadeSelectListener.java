@@ -7,5 +7,5 @@ import java.util.List;
  */
 
 public interface CascadeSelectListener {
-    void onSelect(List<Integer> res);
+    void onSelect(CascadeData res);
 }

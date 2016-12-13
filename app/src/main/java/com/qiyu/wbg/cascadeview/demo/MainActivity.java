@@ -26,11 +26,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         CascadeData cascadeData = null;
+        CascadeData res = null;
         try
         {
             InputStream inputStream = getResources().getAssets().open("data.json");
+            InputStream in = getResources().getAssets().open("res.json");
             Gson gson = new Gson();
             cascadeData = gson.fromJson(new InputStreamReader(inputStream),CascadeData.class);
+            res = gson.fromJson(new InputStreamReader(in),CascadeData.class);
         }catch (IOException e){
 
         }
@@ -51,19 +54,15 @@ public class MainActivity extends AppCompatActivity {
 
         dialog = new CascadeDialog.CascadeDialogBuilder()
                 .setDataSource(cascadeData)
-                .setLevel(2)
-                .setSelectData(list).build();
+                .setLevel(3)
+                .setSelectData(res)
+                .build();
 
         dialog.setSelectedListener(new CascadeSelectListener() {
             @Override
-            public void onSelect(List<Integer> res) {
+            public void onSelect(CascadeData res) {
                 StringBuilder sb = new StringBuilder();
-                for(Integer i : res){
-                    sb.append("select:").append(i);
-                }
-//                list.clear();
-//                list.addAll(res);
-                Toast.makeText(MainActivity.this,sb.toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,res.getTextString(),Toast.LENGTH_SHORT).show();
             }
         });
         findViewById(R.id.title).setOnClickListener(new View.OnClickListener() {
@@ -73,5 +72,12 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show(getSupportFragmentManager(),"cascade");
             }
         });
+    }
+    private StringBuilder append(StringBuilder sb,CascadeData data){
+        if(data == null) return sb;
+        if(data.children == null){
+            return sb.append(data.name);
+        }
+        return append(sb,data.children.get(0));
     }
 }

@@ -38,6 +38,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
     private ContentFragmentAdapter mFragmentPagerAdapter;
     private CascadeData mCascadeData;
     private List<Integer> mSelectedData = new ArrayList<>();
+    private CascadeData result;
     private int mLevel = 0;
     private ViewPager mViewPager;
     private PagerSlidingTabStrip mTabs;
@@ -57,11 +58,10 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
             Serializable s = bundle.getSerializable(BUNDLE_KEY_CASCADE_DATA);
             if (s instanceof CascadeData) {
                 mCascadeData = (CascadeData) s;
-                mCascadeData.calDepth();
             }
             mLevel = bundle.getInt(BUNDLE_KEY_LEVEL);
             Serializable sel = bundle.getSerializable(BUNDLE_KEY_SELECTED_DATA);
-            mSelectedData = (ArrayList<Integer>)sel;
+            mSelectedData = mCascadeData.calDepth((CascadeData)sel);
             if (mLevel > MAX_LEVEL) mLevel = MAX_LEVEL;
             if(mSelectedData.size()>mLevel){
                 mSelectedData = mSelectedData.subList(0,mLevel);
@@ -144,7 +144,8 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.ok){
-            if (mSelectedListener != null) mSelectedListener.onSelect(mSelectedData);
+            result = mCascadeData.calResult(mSelectedData);
+            if (mSelectedListener != null) mSelectedListener.onSelect(result);
         }
         dismiss();
     }
@@ -289,7 +290,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
             return this;
         }
 
-        public CascadeDialogBuilder setSelectData(List<Integer> selectData){
+        public CascadeDialogBuilder setSelectData(CascadeData selectData){
             bundle.putSerializable(BUNDLE_KEY_SELECTED_DATA,(Serializable) selectData);
             return this;
         }
