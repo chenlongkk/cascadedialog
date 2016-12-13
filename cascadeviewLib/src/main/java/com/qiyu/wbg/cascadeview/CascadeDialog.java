@@ -205,7 +205,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         if(mSelectedData.size() == mLevel){
             mOkBtn.setTextColor(getContext().getResources().getColor(R.color.blue));
         }else{
-            mOkBtn.setTextColor(getContext().getResources().getColor(R.color.gray));
+            mOkBtn.setTextColor(getContext().getResources().getColor(R.color.disable));
         }
     }
 
