@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
         dialog = new CascadeDialog.CascadeDialogBuilder()
                 .setDataSource(cascadeData)
-                .setLevel(3)
                 .setSelectData(res)
                 .build();
 

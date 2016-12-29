@@ -2,6 +2,8 @@ package com.qiyu.wbg.cascadeview;
 
 import android.text.TextUtils;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,8 +14,11 @@ import java.util.List;
  */
 
 public class CascadeData implements Serializable {
+    @Expose
     public String id;
+    @Expose
     public String name;
+    @Expose
     public List<CascadeData> children;
     private int depth;
 
@@ -69,16 +74,16 @@ public class CascadeData implements Serializable {
     }
 
     public void reTrace(int depth,CascadeData res,CascadeData data,List<Integer> selected){
-        if(data == null) return ;
-        if(data.children == null) return ;
-        if(depth == selected.size()) return ;
+        if(data == null||data.children == null) return ;
         CascadeData selecedData = data.children.get(selected.get(depth));
         res.id = selecedData.id;
         res.name = selecedData.name;
-        res.children = new ArrayList<>();
-        CascadeData next = new CascadeData();
-        res.children.add(next);
-        reTrace(depth+1,next,selecedData,selected);
+        if(depth + 1 < selected.size()){
+            res.children = new ArrayList<>();
+            CascadeData next = new CascadeData();
+            res.children.add(next);
+            reTrace(depth+1,next,selecedData,selected);
+        }
     }
 
     public String getTextString(){
@@ -88,8 +93,8 @@ public class CascadeData implements Serializable {
     }
     public void append(StringBuilder sb,CascadeData data){
         if(data == null ) return ;
+        sb.append(data.name).append("-");
         if(data.children != null){
-            sb.append(data.name).append("-");
             append(sb,data.children.get(0));
         }
     }

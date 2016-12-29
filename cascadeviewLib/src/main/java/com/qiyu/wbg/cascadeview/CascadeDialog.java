@@ -32,15 +32,16 @@ import static com.qiyu.wbg.cascadeview.Constants.DEFAULT_HIGHT;
 import static com.qiyu.wbg.cascadeview.Constants.MAX_LEVEL;
 
 /**
+ * 级联选择器
  * Created by chenlong on 12/9/16.
  */
-public class CascadeDialog extends DialogFragment implements CascadeCallback,View.OnClickListener{
+public class CascadeDialog extends DialogFragment implements CascadeCallback, View.OnClickListener {
     private static final String TAG = CascadeDialog.class.getSimpleName();
     private ContentFragmentAdapter mFragmentPagerAdapter;
     private CascadeData mCascadeData;
     private List<Integer> mSelectedData = new ArrayList<>();
     private CascadeData result;
-    private int mLevel = 0;
+    private boolean mFinishChoose;
     private ViewPager mViewPager;
     private PagerSlidingTabStrip mTabs;
     private TextView mOkBtn;
@@ -48,8 +49,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
     private CascadeSelectListener mSelectedListener;
     private List<FragmentState> states = new ArrayList<>();
 
-    public CascadeDialog() {
-    }
+    public CascadeDialog() {}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,14 +60,9 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
             if (s instanceof CascadeData) {
                 mCascadeData = (CascadeData) s;
             }
-            mLevel = bundle.getInt(BUNDLE_KEY_LEVEL);
-            if (mLevel > MAX_LEVEL) mLevel = MAX_LEVEL;
             Serializable sel = bundle.getSerializable(BUNDLE_KEY_SELECTED_DATA);
-            if(sel!=null){
-                mSelectedData = mCascadeData.calDepth((CascadeData)sel);
-                if(mSelectedData.size()>mLevel) {
-                    mSelectedData = mSelectedData.subList(0,mLevel);
-                }
+            if (sel != null) {
+                mSelectedData = mCascadeData.calDepth((CascadeData) sel);
                 bundle.remove(BUNDLE_KEY_SELECTED_DATA);
             }
         }
@@ -78,11 +73,12 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
     public void onStart() {
         super.onStart();
         Window window = getDialog().getWindow();
+        if(window == null) return ;
         WindowManager.LayoutParams params = window.getAttributes();
         params.windowAnimations = R.style.DialogAnimation;
         params.gravity = Gravity.BOTTOM;
         params.width = WindowManager.LayoutParams.MATCH_PARENT;
-        params.height = Util.dp2px(getContext(),DEFAULT_HIGHT);
+        params.height = Util.dp2px(getContext(), DEFAULT_HIGHT);
         window.setAttributes(params);
         window.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
     }
@@ -128,15 +124,20 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
             }
         }
 
-        if (nextLevel < mLevel) states.add(new FragmentState(next, -1, nextLevel, "未选择"));
+        if (next != null && !next.isEmpty()) {
+            states.add(new FragmentState(next, -1, nextLevel, "未选择"));
+            mFinishChoose = false;
+        } else {
+            mFinishChoose = true;
+        }
 
         //记录选择结果
-        if(level < mSelectedData.size()){
-            mSelectedData.set(level,position);
-            for(int i = level+1;i<mSelectedData.size();i++){
+        if (level < mSelectedData.size()) {
+            mSelectedData.set(level, position);
+            for (int i = level + 1; i < mSelectedData.size(); i++) {
                 mSelectedData.remove(i);
             }
-        }else{
+        } else {
             mSelectedData.add(position);
         }
 
@@ -148,14 +149,16 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.ok){
-            if(mSelectedData.size() < mLevel){
-                Toast.makeText(getContext(),"请填写完整~",Toast.LENGTH_SHORT).show();
-            }else{
+        if (v.getId() == R.id.ok) {
+            if (!mFinishChoose) {
+                Toast.makeText(getContext(), "请填写完整~", Toast.LENGTH_SHORT).show();
+            } else {
                 result = mCascadeData.calResult(mSelectedData);
                 if (mSelectedListener != null) mSelectedListener.onSelect(result);
                 dismiss();
             }
+        } else if (v.getId() == R.id.cancel) {
+            dismiss();
         }
     }
 
@@ -185,7 +188,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
 
     private void initWithData() {
         if (mSelectedData == null || mCascadeData == null || !states.isEmpty()) return;
-        for (int i = 0; i < Math.min(mSelectedData.size(),mLevel); i++) {
+        for (int i = 0; i < mSelectedData.size(); i++) {
             FragmentState state = mCascadeData.getCascadeData(i, mSelectedData, mSelectedData.get(i));
             states.add(state);
         }
@@ -201,10 +204,10 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
         refreshBtnStyle();
     }
 
-    private void refreshBtnStyle(){
-        if(mSelectedData.size() == mLevel){
+    private void refreshBtnStyle() {
+        if (mFinishChoose) {
             mOkBtn.setTextColor(getContext().getResources().getColor(R.color.blue));
-        }else{
+        } else {
             mOkBtn.setTextColor(getContext().getResources().getColor(R.color.disable));
         }
     }
@@ -304,18 +307,13 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback,Vie
             dialog = new CascadeDialog();
         }
 
-        public CascadeDialogBuilder setLevel(int level) {
-            bundle.putInt(BUNDLE_KEY_LEVEL, level);
+        public CascadeDialogBuilder setSelectData(CascadeData selectData) {
+            bundle.putSerializable(BUNDLE_KEY_SELECTED_DATA, (Serializable) selectData);
             return this;
         }
 
-        public CascadeDialogBuilder setSelectData(CascadeData selectData){
-            bundle.putSerializable(BUNDLE_KEY_SELECTED_DATA,(Serializable) selectData);
-            return this;
-        }
-
-        public CascadeDialogBuilder setDataSource(CascadeData cascadeData){
-            bundle.putSerializable(BUNDLE_KEY_CASCADE_DATA,cascadeData);
+        public CascadeDialogBuilder setDataSource(CascadeData cascadeData) {
+            bundle.putSerializable(BUNDLE_KEY_CASCADE_DATA, cascadeData);
             return this;
         }
 
