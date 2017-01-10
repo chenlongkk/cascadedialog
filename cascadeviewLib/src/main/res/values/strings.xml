@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Cascadeview</string>
-    <string name="empty_choose">未选择</string>
+    <string name="empty_choose">请选择</string>
     <string name="cancel">取消</string>
     <string name="ok">确定</string>
+    <string name="not_finish_alert">请填写完整~</string>
 </resources>

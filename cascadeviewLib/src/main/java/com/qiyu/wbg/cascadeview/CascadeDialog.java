@@ -125,7 +125,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback, Vi
         }
 
         if (next != null && !next.isEmpty()) {
-            states.add(new FragmentState(next, -1, nextLevel, "未选择"));
+            states.add(new FragmentState(next, -1, nextLevel, getString(R.string.empty_choose)));
             mFinishChoose = false;
         } else {
             mFinishChoose = true;
@@ -151,7 +151,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback, Vi
     public void onClick(View v) {
         if (v.getId() == R.id.ok) {
             if (!mFinishChoose) {
-                Toast.makeText(getContext(), "请填写完整~", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.not_finish_alert, Toast.LENGTH_SHORT).show();
             } else {
                 result = mCascadeData.calResult(mSelectedData);
                 if (mSelectedListener != null) mSelectedListener.onSelect(result);
@@ -177,7 +177,7 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback, Vi
         if (mSelectedData.isEmpty()) {
             if (mCascadeData != null && mCascadeData.children != null) {
                 if (states.isEmpty()) {
-                    states.add(new FragmentState(mCascadeData.children, -1, 0, "未选择"));
+                    states.add(new FragmentState(mCascadeData.children, -1, 0, getString(R.string.empty_choose)));
                 }
             }
         } else {
@@ -262,9 +262,9 @@ public class CascadeDialog extends DialogFragment implements CascadeCallback, Vi
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (mFragmentList == null) return "未选择";
+            if (mFragmentList == null) return getString(R.string.empty_choose);
             ContentFragment contentFragment = mFragmentList.get(position);
-            if (contentFragment == null) return "未选择";
+            if (contentFragment == null) return getString(R.string.empty_choose);
             return contentFragment.getTitle();
         }
     }
