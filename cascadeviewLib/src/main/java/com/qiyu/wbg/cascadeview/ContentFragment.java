@@ -73,7 +73,7 @@ public class ContentFragment extends Fragment implements AdapterView.OnItemClick
     }
 
     public String getTitle(){
-        return mTitle == null ? "未选择":mTitle;
+        return mTitle == null ? getString(R.string.empty_choose):mTitle;
     }
 
     class ContentAdapter extends BaseAdapter{
@@ -100,11 +100,16 @@ public class ContentFragment extends Fragment implements AdapterView.OnItemClick
             }else{
                 contentView = (TextView)view;
             }
-            int padding = Util.dp2px(getContext(),20);
-            int paddingV = Util.dp2px(getContext(),14);
+            int padding = Util.dp2px(getContext(),16);
+            int paddingV = Util.dp2px(getContext(),12);
             contentView.setPadding(padding,paddingV,padding,paddingV);
-            contentView.setTextSize(TypedValue.COMPLEX_UNIT_SP,12);
-            contentView.setTextColor(Color.parseColor("#333333"));
+            contentView.setTextSize(TypedValue.COMPLEX_UNIT_SP,14);
+            contentView.setBackgroundColor(getResources().getColor(R.color.white));
+            if(i == selectedPos){
+                contentView.setTextColor(Color.parseColor("#289BF0"));
+            }else{
+                contentView.setTextColor(Color.parseColor("#333333"));
+            }
             contentView.setText(mDataSource.get(i).name);
             return contentView;
         }
